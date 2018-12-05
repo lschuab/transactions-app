@@ -10,7 +10,7 @@ module.exports = function(app){
   app.delete('/users/:id', users.delete)
 
   app.get('/users/:id/transactions', users.readTransactions)
-  app.create('/users/:id/transactions',users.createTransaction)
+  app.post('/users/:id/transactions',users.createTransaction)
   
   app.get('/transactions', transactions.index)
   app.get('/transactions/:id', transactions.read)
