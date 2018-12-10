@@ -15,7 +15,6 @@ module.exports = function(app){
   app.get('/transactions', transactions.index)
   app.get('/transactions/:id', transactions.read)
   app.post('/transactions', transactions.create)
-  app.put('/transactions/:id', transactions.replace)
   app.patch('/transactions/:id', transactions.modify)
   app.delete('/transactions/:id', transactions.delete)
 

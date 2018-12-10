@@ -5,8 +5,7 @@ module.exports = {
     knex('users')
     .then(response => res.send(response))
     .catch(err => {
-      console.log(err)
-      res.sendStatus(500)
+      res.status(422).send({message: err})
     })
   },
   
@@ -15,8 +14,7 @@ module.exports = {
       .where('id', req.params.id)
     .then(response => res.send(response[0]))
     .catch(err => {
-      console.log(err)
-      res.sendStatus(500)
+      res.status(422).send({message: err})
     })
   },
   
@@ -28,8 +26,7 @@ module.exports = {
       })
     .then(() => res.sendStatus(200))
     .catch(err => {
-      console.log(err)
-      res.sendStatus(500)
+      res.status(422).send({message: err})
     })
   },
   
@@ -42,8 +39,7 @@ module.exports = {
       })
     .then(() => res.sendStatus(200))
     .catch(err => {
-      console.log(err)
-      res.sendStatus(500)
+      res.status(422).send({message: err})
     })
   },
   
@@ -56,8 +52,7 @@ module.exports = {
       })
     .then(() => res.sendStatus(200))
     .catch(err => {
-      console.log(err)
-      res.sendStatus(500)
+      res.status(422).send({message: err})
     })
   },
   
@@ -67,23 +62,24 @@ module.exports = {
       .del()
     .then(() => res.sendStatus(200))
     .catch(err => {
-      console.log(err)
-      res.sendStatus(500)
+      res.status(422).send({message: err})
     })
     
   },
 
     readTransactions: (req,res) => {
+      const page = req.query.page ? +req.query.page : 1
       knex('transactions')
         .where('user_id', req.params.id)
+        .orderBy('id', 'asc')
+        .offset(100 * (page - 1)).limit(100)
       .then(response => res.send(response))
       .catch(err => {
-        console.log(err)
-        res.sendStatus(500)
+        res.status(422).send({message: err})
       })
     },
 
-    createTransactions: (req, res) => {
+    createTransaction: (req, res) => {
       knex('transactions')
         .insert({
           user_id: +req.params.id,
@@ -93,8 +89,7 @@ module.exports = {
         })
       .then(() => res.sendStatus(200))
       .catch(err => {
-        console.log(err)
-        res.sendStatus(500)
+        res.status(422).send({message: err})
       })
     }
   
