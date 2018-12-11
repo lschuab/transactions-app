@@ -1,4 +1,6 @@
-require('dotenv').load({path: './local.env'})
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').load({path: './local.env'})
+}
 
 module.exports = {
   development: {
