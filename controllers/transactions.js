@@ -22,7 +22,7 @@ module.exports = {
   create: (req, res) => {
     knex('transactions')
       .insert({
-        user_id: +req.body.user_id,
+        user_id: +req.decoded.id,
         amount: +req.body.amount,
         type: req.body.type,
         business_name: req.body.business_name

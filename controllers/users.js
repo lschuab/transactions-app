@@ -1,71 +1,106 @@
 const knex = require("../db/knex.js");
+const hasher = require("../config/hasher.js");
+const jwt = require("jsonwebtoken")
+const secret = process.env.JWT_SECRET || 'secret'
 
 module.exports = {
-  index: (req, res) => {
-    knex('users')
-    .then(response => res.send(response))
-    .catch(err => {
-      res.status(422).send({message: err})
-    })
-  },
+  // index: (req, res) => {
+  //   knex('users')
+  //   .then(response => res.send(response))
+  //   .catch(err => {
+  //     res.status(422).send({message: err})
+  //   })
+  // },
   
-  read: (req, res) => {
-    knex('users')
-      .where('id', req.params.id)
-    .then(response => res.send(response[0]))
-    .catch(err => {
-      res.status(422).send({message: err})
-    })
-  },
+  // read: (req, res) => {
+  //   knex('users')
+  //     .where('id', req.params.id)
+  //   .then(response => res.send(response[0]))
+  //   .catch(err => {
+  //     res.status(422).send({message: err})
+  //   })
+  // },
   
   create: (req, res) => {
-    knex('users')
-      .insert({
-        email: req.body.email,
-        password: req.body.password
+    hasher.hash(req.body)
+    .then(user => {
+      knex('users')
+        .insert({
+          email: user.email,
+          password: user.password
+        }, 'id')
+      .then(results => res.send({
+        message: "Successfully registered, please log in",
+        id: results[0]
+      }))
+      .catch(err => {
+        res.status(400).send({message: err})
       })
-    .then(() => res.sendStatus(200))
-    .catch(err => {
-      res.status(422).send({message: err})
     })
   },
-  
-  replace: (req, res) => {
-    knex('users')
-      .where('id', req.params.id)
-      .update({
-        email: req.body.email,
-        password: req.body.password
+
+  login: (req, res) => {
+    knex('users').where('email', req.body.email)
+      .first()
+      .then(user => {
+        if(user) {
+          hasher.check(user, req.body).then(isMatch => {
+            if (isMatch) {
+              const token = jwt.sign(user, secret)
+              delete user.password
+              res.json({message: "Successfully signed in", token, user})
+            } else {
+              res.status(400).send({message: 'Invalid Email / Password'})
+            }
+          })
+        } else {
+          res.status(400).send({message: 'Invalid Email / Password'})
+        }
+      }).catch(err => {
+        res.status(400).send({message: 'Invalid Email / Password'})
       })
-    .then(() => res.sendStatus(200))
-    .catch(err => {
-      res.status(422).send({message: err})
-    })
+  },
+
+  verify: (req, res) => {
+    res.json(req.decoded)
   },
   
-  modify: (req, res) => {
-    knex('users')
-      .where('id', req.params.id)
-      .update({
-        email: req.body.email,
-        password: req.body.password
-      })
-    .then(() => res.sendStatus(200))
-    .catch(err => {
-      res.status(422).send({message: err})
-    })
-  },
+  // replace: (req, res) => {
+  //   knex('users')
+  //     .where('id', req.params.id)
+  //     .update({
+  //       email: req.body.email,
+  //       password: req.body.password
+  //     })
+  //   .then(() => res.sendStatus(200))
+  //   .catch(err => {
+  //     res.status(422).send({message: err})
+  //   })
+  // },
   
-  delete: (req, res) => {
-    knex('users')
-      .where('id', req.params.id)
-      .del()
-    .then(() => res.sendStatus(200))
-    .catch(err => {
-      res.status(422).send({message: err})
-    })
+  // modify: (req, res) => {
+  //   knex('users')
+  //     .where('id', req.params.id)
+  //     .update({
+  //       email: req.body.email,
+  //       password: req.body.password
+  //     })
+  //   .then(() => res.sendStatus(200))
+  //   .catch(err => {
+  //     res.status(422).send({message: err})
+  //   })
+  // },
+  
+  // delete: (req, res) => {
+  //   knex('users')
+  //     .where('id', req.params.id)
+  //     .del()
+  //   .then(() => res.sendStatus(200))
+  //   .catch(err => {
+  //     res.status(422).send({message: err})
+  //   })
     
-  },
+  // },
 
     readTransactions: (req,res) => {
       const page = req.query.page ? +req.query.page : 1
