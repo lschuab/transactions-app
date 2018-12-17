@@ -8,6 +8,20 @@ app.use(bodyParser.json({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors())
 
+const corsWhiteList = ['http://localhost:3000']
+const corsOptions = {
+  origin: (origin, callback) => {
+    console.log(origin)
+    if (corsWhiteList.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(null, false)
+    }
+  }
+}
+app.use(cors(corsOptions))
+
+
 
 var routes_setter = require('./config/routes.js');
 routes_setter(app);
